@@ -73,8 +73,8 @@
   <!-- Script -->
   <script>
     document.addEventListener("DOMContentLoaded", () => {
-      const API_URL = "https://api-inference.huggingface.co/models/roberta-base-openai-detector";
-      const HF_TOKEN = "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";
+      const API_URL = "https://api-inference.huggingface.co/models/MayZhou/e5-small-lora-ai-generated-detector";
+      const HF_TOKEN = "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"; // your real token
 
       async function analyzeText() {
         const inputText = document.getElementById("inputText").value.trim();
@@ -94,14 +94,27 @@
         confidenceText.textContent = "";
         resultBox.classList.remove("hidden");
 
-        const response = await fetch(API_URL, {
-          method: "POST",
-          headers: {
-            "Authorization": `Bearer ${HF_TOKEN}`,
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({ inputs: inputText })
-        });
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+        let response;
+        try {
+          response = await fetch(API_URL, {
+            method: "POST",
+            headers: {
+              "Authorization": `Bearer ${HF_TOKEN}`,
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ inputs: inputText }),
+            signal: controller.signal
+          });
+          clearTimeout(timeoutId);
+        } catch (error) {
+          resultText.textContent = "❌ Request timed out or failed. Please try again.";
+          resultText.className = "text-red-600 font-semibold";
+          confidenceText.textContent = "";
+          return;
+        }
 
         const data = await response.json();
 
@@ -112,10 +125,10 @@
           return;
         }
 
-        const prediction = data[0];
+        const prediction = data[0]; // first label is the prediction
         const label = prediction.label.toLowerCase();
         const score = Math.round(prediction.score * 100);
-        const isAI = label === "label_1";
+        const isAI = label.includes("ai");
 
         if (isAI) {
           resultText.textContent = "❌ This text is likely AI-generated.";
@@ -128,7 +141,6 @@
         confidenceText.textContent = `Confidence Score: ${score}%`;
       }
 
-      // Dark mode toggle
       const darkToggle = document.getElementById('toggleDark');
       if (darkToggle) {
         darkToggle.addEventListener('click', () => {
@@ -136,7 +148,6 @@
         });
       }
 
-      // Make function accessible in HTML
       window.analyzeText = analyzeText;
     });
   </script>
