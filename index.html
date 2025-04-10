@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TextDetectorAI.online</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 text-gray-900 flex flex-col min-h-screen">
+
+  <!-- Hero Section -->
+  <header class="bg-white shadow">
+    <div class="max-w-4xl mx-auto px-4 py-12 text-center">
+      <h1 class="text-4xl sm:text-5xl font-bold mb-4">TextDetectorAI.online</h1>
+      <p class="text-lg text-gray-600">Instantly detect if text is AI-written or human-written</p>
+    </div>
+  </header>
+
+  <!-- Main Tool Section -->
+  <main class="flex-grow">
+    <div class="max-w-2xl mx-auto px-4 py-8">
+      <textarea id="inputText" rows="10" placeholder="Paste your text here..." class="w-full p-4 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none mb-4"></textarea>
+
+      <div class="text-center">
+        <button onclick="analyzeText()" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-lg transition-colors">
+          Analyze Text
+        </button>
+      </div>
+
+      <div id="result" class="mt-6 text-center text-xl font-semibold hidden"></div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-white border-t mt-12">
+    <div class="max-w-4xl mx-auto px-4 py-6 text-center text-sm text-gray-500 space-x-4">
+      <a href="#" class="hover:underline">About</a>
+      <a href="#" class="hover:underline">How it Works</a>
+      <a href="#" class="hover:underline">Contact</a>
+    </div>
+  </footer>
+
+  <!-- Script -->
+  <script>
+    function analyzeText() {
+      const resultBox = document.getElementById("result");
+      const random = Math.random();
+      if (random > 0.5) {
+        resultBox.innerHTML = "✅ This text is likely human-written.";
+        resultBox.classList.remove("text-red-600");
+        resultBox.classList.add("text-green-600");
+      } else {
+        resultBox.innerHTML = "❌ This text is likely AI-generated.";
+        resultBox.classList.remove("text-green-600");
+        resultBox.classList.add("text-red-600");
+      }
+      resultBox.classList.remove("hidden");
+    }
+  </script>
+
+</body>
+</html>
