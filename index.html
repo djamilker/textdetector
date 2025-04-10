@@ -1,69 +1,145 @@
-<script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const API_URL = "https://api-inference.huggingface.co/models/roberta-base-openai-detector";
-    const HF_TOKEN = "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"; // paste your real token here
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TextDetectorAI.online</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            primary: {
+              DEFAULT: '#7e5bef',
+              dark: '#5b3cc4'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet" />
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 font-sans transition-colors duration-300">
 
-    async function analyzeText() {
-      const inputText = document.getElementById("inputText").value.trim();
-      const resultBox = document.getElementById("resultBox");
-      const resultText = document.getElementById("resultText");
-      const confidenceText = document.getElementById("confidenceText");
+  <!-- Header -->
+  <header class="bg-gradient-to-br from-purple-500 to-indigo-600 text-white py-10">
+    <div class="max-w-4xl mx-auto px-4 text-center">
+      <h1 class="text-4xl font-extrabold mb-2">🧠 TextDetectorAI</h1>
+      <p class="text-lg font-medium">Instantly detect if text is AI-generated or human-written</p>
+    </div>
+  </header>
 
-      if (!inputText) {
-        resultText.textContent = "⚠️ Please enter some text.";
-        resultText.className = "text-yellow-600 font-semibold";
+  <!-- Dark Mode Toggle -->
+  <div class="max-w-4xl mx-auto px-4 mt-4 text-right">
+    <button id="toggleDark" class="text-sm bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-100 px-3 py-1 rounded-md transition">
+      Toggle Dark Mode
+    </button>
+  </div>
+
+  <!-- Main Content -->
+  <main class="max-w-2xl mx-auto px-4 py-10">
+    <div class="bg-white dark:bg-gray-800 shadow-xl rounded-2xl p-6">
+      <textarea id="inputText" rows="8" placeholder="Paste your text here..." class="w-full p-4 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-900 resize-none focus:ring-2 focus:ring-primary focus:outline-none"></textarea>
+      
+      <div class="text-center mt-6">
+        <button onclick="analyzeText()" class="bg-primary hover:bg-primary-dark text-white px-6 py-3 rounded-lg font-semibold shadow-md transition">
+          Analyze Text
+        </button>
+      </div>
+
+      <div id="resultBox" class="mt-6 hidden text-center">
+        <p id="resultText" class="text-xl font-semibold mb-1"></p>
+        <p id="confidenceText" class="text-sm text-gray-600 dark:text-gray-300"></p>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="text-center text-sm text-gray-500 dark:text-gray-400 border-t dark:border-gray-700 py-6 mt-10">
+    <p>© 2025 TextDetectorAI.online</p>
+    <div class="space-x-4 mt-2">
+      <a href="#" class="hover:underline">About</a>
+      <a href="#" class="hover:underline">How it Works</a>
+      <a href="#" class="hover:underline">Contact</a>
+    </div>
+  </footer>
+
+  <!-- Script -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const API_URL = "https://api-inference.huggingface.co/models/roberta-base-openai-detector";
+      const HF_TOKEN = "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";
+
+      async function analyzeText() {
+        const inputText = document.getElementById("inputText").value.trim();
+        const resultBox = document.getElementById("resultBox");
+        const resultText = document.getElementById("resultText");
+        const confidenceText = document.getElementById("confidenceText");
+
+        if (!inputText) {
+          resultText.textContent = "⚠️ Please enter some text.";
+          resultText.className = "text-yellow-600 font-semibold";
+          confidenceText.textContent = "";
+          resultBox.classList.remove("hidden");
+          return;
+        }
+
+        resultText.textContent = "⏳ Analyzing...";
         confidenceText.textContent = "";
         resultBox.classList.remove("hidden");
-        return;
+
+        const response = await fetch(API_URL, {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${HF_TOKEN}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ inputs: inputText })
+        });
+
+        const data = await response.json();
+
+        if (data.error) {
+          resultText.textContent = "❌ Error: " + data.error;
+          resultText.className = "text-red-600 font-semibold";
+          confidenceText.textContent = "";
+          return;
+        }
+
+        const prediction = data[0];
+        const label = prediction.label.toLowerCase();
+        const score = Math.round(prediction.score * 100);
+        const isAI = label === "label_1";
+
+        if (isAI) {
+          resultText.textContent = "❌ This text is likely AI-generated.";
+          resultText.className = "text-red-600 font-semibold";
+        } else {
+          resultText.textContent = "✅ This text is likely human-written.";
+          resultText.className = "text-green-600 font-semibold";
+        }
+
+        confidenceText.textContent = `Confidence Score: ${score}%`;
       }
 
-      resultText.textContent = "⏳ Analyzing...";
-      confidenceText.textContent = "";
-      resultBox.classList.remove("hidden");
-
-      const response = await fetch(API_URL, {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${HF_TOKEN}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ inputs: inputText })
-      });
-
-      const data = await response.json();
-
-      if (data.error) {
-        resultText.textContent = "❌ Error: " + data.error;
-        resultText.className = "text-red-600 font-semibold";
-        confidenceText.textContent = "";
-        return;
+      // Dark mode toggle
+      const darkToggle = document.getElementById('toggleDark');
+      if (darkToggle) {
+        darkToggle.addEventListener('click', () => {
+          document.documentElement.classList.toggle('dark');
+        });
       }
 
-      const prediction = data[0];
-      const label = prediction.label.toLowerCase();
-      const score = Math.round(prediction.score * 100);
-      const isAI = label === "label_1";
+      // Make function accessible in HTML
+      window.analyzeText = analyzeText;
+    });
+  </script>
 
-      if (isAI) {
-        resultText.textContent = "❌ This text is likely AI-generated.";
-        resultText.className = "text-red-600 font-semibold";
-      } else {
-        resultText.textContent = "✅ This text is likely human-written.";
-        resultText.className = "text-green-600 font-semibold";
-      }
-
-      confidenceText.textContent = `Confidence Score: ${score}%`;
-    }
-
-    // Fix: only run this after DOM is loaded
-    const darkToggle = document.getElementById('toggleDark');
-    if (darkToggle) {
-      darkToggle.addEventListener('click', () => {
-        document.documentElement.classList.toggle('dark');
-      });
-    }
-
-    // Expose function globally
-    window.analyzeText = analyzeText;
-  });
-</script>
+</body>
+</html>
