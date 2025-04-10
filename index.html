@@ -72,9 +72,8 @@
 
   <!-- Script -->
   <script>
-    // Global function so onclick works
     function analyzeText() {
-      const SPACE_URL = "https://djamker-textdetectorai.hf.space/run/predict";
+      const API_URL = "https://text-detector-api.onrender.com/predict";
 
       const inputText = document.getElementById("inputText").value.trim();
       const resultBox = document.getElementById("resultBox");
@@ -93,40 +92,44 @@
       confidenceText.textContent = "";
       resultBox.classList.remove("hidden");
 
-      fetch(SPACE_URL, {
+      fetch(API_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ data: [inputText] })
+        body: JSON.stringify({ text: inputText })
       })
-      .then(res => res.json())
-      .then(data => {
-        console.log("Raw response:", data);
-        let output = "⚠️ Unexpected response.";
-        if (data && Array.isArray(data.data) && data.data.length > 0) {
-          output = data.data[0];
-        }
+        .then(res => res.json())
+        .then(data => {
+          console.log("Raw response:", data);
 
-        if (output.toLowerCase().includes("ai")) {
-          resultText.textContent = "❌ " + output;
+          if (data.error) {
+            resultText.textContent = "❌ " + data.error;
+            resultText.className = "text-red-600 font-semibold";
+            confidenceText.textContent = "";
+            return;
+          }
+
+          const label = data.label || "Unknown";
+          const score = data.confidence || 0;
+
+          if (label.toLowerCase().includes("ai")) {
+            resultText.textContent = "❌ Likely AI-Generated";
+            resultText.className = "text-red-600 font-semibold";
+          } else {
+            resultText.textContent = "✅ Likely Human-Written";
+            resultText.className = "text-green-600 font-semibold";
+          }
+
+          confidenceText.textContent = `Confidence: ${score}%`;
+        })
+        .catch(error => {
+          resultText.textContent = "❌ Request failed: " + error.message;
           resultText.className = "text-red-600 font-semibold";
-        } else {
-          resultText.textContent = "✅ " + output;
-          resultText.className = "text-green-600 font-semibold";
-        }
-
-        confidenceText.textContent = ""; // already included in output
-      })
-      .catch(error => {
-        resultText.textContent = "❌ Request failed: " + error.message;
-        resultText.className = "text-red-600 font-semibold";
-        confidenceText.textContent = "";
-      });
+          confidenceText.textContent = "";
+        });
     }
 
-    // Expose the function globally
     window.analyzeText = analyzeText;
 
-    // Dark mode toggle after DOM is ready
     window.addEventListener("DOMContentLoaded", () => {
       const darkToggle = document.getElementById("toggleDark");
       if (darkToggle) {
@@ -136,6 +139,5 @@
       }
     });
   </script>
-
 </body>
 </html>
