@@ -101,34 +101,7 @@
           });
 
           const data = await response.json();
-          const output = data.data[0]; // e.g. "AI-Generated (92.5%)"
+          console.log("Raw response from Hugging Face Space:", data);
 
-          if (output.toLowerCase().includes("ai")) {
-            resultText.textContent = "❌ " + output;
-            resultText.className = "text-red-600 font-semibold";
-          } else {
-            resultText.textContent = "✅ " + output;
-            resultText.className = "text-green-600 font-semibold";
-          }
-
-          confidenceText.textContent = ""; // included in output
-        } catch (error) {
-          resultText.textContent = "❌ Request failed: " + error.message;
-          resultText.className = "text-red-600 font-semibold";
-          confidenceText.textContent = "";
-        }
-      }
-
-      const darkToggle = document.getElementById('toggleDark');
-      if (darkToggle) {
-        darkToggle.addEventListener('click', () => {
-          document.documentElement.classList.toggle('dark');
-        });
-      }
-
-      window.analyzeText = analyzeText;
-    });
-  </script>
-
-</body>
-</html>
+          let output = "⚠️ Unexpected response.";
+          if (data && Array.isArray(data.data)
