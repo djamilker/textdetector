@@ -72,36 +72,70 @@
 
   <!-- Script -->
   <script>
-    document.addEventListener("DOMContentLoaded", () => {
+    // Global function so onclick works
+    function analyzeText() {
       const SPACE_URL = "https://djamker-textdetectorai.hf.space/run/predict";
 
-      async function analyzeText() {
-        const inputText = document.getElementById("inputText").value.trim();
-        const resultBox = document.getElementById("resultBox");
-        const resultText = document.getElementById("resultText");
-        const confidenceText = document.getElementById("confidenceText");
+      const inputText = document.getElementById("inputText").value.trim();
+      const resultBox = document.getElementById("resultBox");
+      const resultText = document.getElementById("resultText");
+      const confidenceText = document.getElementById("confidenceText");
 
-        if (!inputText) {
-          resultText.textContent = "⚠️ Please enter some text.";
-          resultText.className = "text-yellow-600 font-semibold";
-          confidenceText.textContent = "";
-          resultBox.classList.remove("hidden");
-          return;
-        }
-
-        resultText.textContent = "⏳ Analyzing...";
+      if (!inputText) {
+        resultText.textContent = "⚠️ Please enter some text.";
+        resultText.className = "text-yellow-600 font-semibold";
         confidenceText.textContent = "";
         resultBox.classList.remove("hidden");
+        return;
+      }
 
-        try {
-          const response = await fetch(SPACE_URL, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ data: [inputText] })
-          });
+      resultText.textContent = "⏳ Analyzing...";
+      confidenceText.textContent = "";
+      resultBox.classList.remove("hidden");
 
-          const data = await response.json();
-          console.log("Raw response from Hugging Face Space:", data);
+      fetch(SPACE_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ data: [inputText] })
+      })
+      .then(res => res.json())
+      .then(data => {
+        console.log("Raw response:", data);
+        let output = "⚠️ Unexpected response.";
+        if (data && Array.isArray(data.data) && data.data.length > 0) {
+          output = data.data[0];
+        }
 
-          let output = "⚠️ Unexpected response.";
-          if (data && Array.isArray(data.data)
+        if (output.toLowerCase().includes("ai")) {
+          resultText.textContent = "❌ " + output;
+          resultText.className = "text-red-600 font-semibold";
+        } else {
+          resultText.textContent = "✅ " + output;
+          resultText.className = "text-green-600 font-semibold";
+        }
+
+        confidenceText.textContent = ""; // already included in output
+      })
+      .catch(error => {
+        resultText.textContent = "❌ Request failed: " + error.message;
+        resultText.className = "text-red-600 font-semibold";
+        confidenceText.textContent = "";
+      });
+    }
+
+    // Expose the function globally
+    window.analyzeText = analyzeText;
+
+    // Dark mode toggle after DOM is ready
+    window.addEventListener("DOMContentLoaded", () => {
+      const darkToggle = document.getElementById("toggleDark");
+      if (darkToggle) {
+        darkToggle.addEventListener("click", () => {
+          document.documentElement.classList.toggle("dark");
+        });
+      }
+    });
+  </script>
+
+</body>
+</html>
