@@ -1,64 +1,69 @@
 <script>
-  const API_URL = "https://api-inference.huggingface.co/models/roberta-base-openai-detector";
-  const HF_TOKEN = "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"; 
+  document.addEventListener("DOMContentLoaded", () => {
+    const API_URL = "https://api-inference.huggingface.co/models/roberta-base-openai-detector";
+    const HF_TOKEN = "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"; // paste your real token here
 
-  async function analyzeText() {
-    const inputText = document.getElementById("inputText").value.trim();
-    const resultBox = document.getElementById("resultBox");
-    const resultText = document.getElementById("resultText");
-    const confidenceText = document.getElementById("confidenceText");
+    async function analyzeText() {
+      const inputText = document.getElementById("inputText").value.trim();
+      const resultBox = document.getElementById("resultBox");
+      const resultText = document.getElementById("resultText");
+      const confidenceText = document.getElementById("confidenceText");
 
-    if (!inputText) {
-      resultText.textContent = "⚠️ Please enter some text.";
-      resultText.className = "text-yellow-600 font-semibold";
+      if (!inputText) {
+        resultText.textContent = "⚠️ Please enter some text.";
+        resultText.className = "text-yellow-600 font-semibold";
+        confidenceText.textContent = "";
+        resultBox.classList.remove("hidden");
+        return;
+      }
+
+      resultText.textContent = "⏳ Analyzing...";
       confidenceText.textContent = "";
       resultBox.classList.remove("hidden");
-      return;
+
+      const response = await fetch(API_URL, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${HF_TOKEN}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ inputs: inputText })
+      });
+
+      const data = await response.json();
+
+      if (data.error) {
+        resultText.textContent = "❌ Error: " + data.error;
+        resultText.className = "text-red-600 font-semibold";
+        confidenceText.textContent = "";
+        return;
+      }
+
+      const prediction = data[0];
+      const label = prediction.label.toLowerCase();
+      const score = Math.round(prediction.score * 100);
+      const isAI = label === "label_1";
+
+      if (isAI) {
+        resultText.textContent = "❌ This text is likely AI-generated.";
+        resultText.className = "text-red-600 font-semibold";
+      } else {
+        resultText.textContent = "✅ This text is likely human-written.";
+        resultText.className = "text-green-600 font-semibold";
+      }
+
+      confidenceText.textContent = `Confidence Score: ${score}%`;
     }
 
-    resultText.textContent = "⏳ Analyzing...";
-    confidenceText.textContent = "";
-    resultBox.classList.remove("hidden");
-
-    const response = await fetch(API_URL, {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${HF_TOKEN}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        inputs: inputText
-      })
-    });
-
-    const data = await response.json();
-
-    if (data.error) {
-      resultText.textContent = "❌ Error: " + data.error;
-      resultText.className = "text-red-600 font-semibold";
-      confidenceText.textContent = "";
-      return;
+    // Fix: only run this after DOM is loaded
+    const darkToggle = document.getElementById('toggleDark');
+    if (darkToggle) {
+      darkToggle.addEventListener('click', () => {
+        document.documentElement.classList.toggle('dark');
+      });
     }
 
-    const prediction = data[0]; // Assumes response is an array of {label, score}
-    const label = prediction.label.toLowerCase(); // "LABEL_0" or "LABEL_1"
-    const score = Math.round(prediction.score * 100);
-
-    const isAI = label === "label_1"; // Check model meaning for AI/Human (we’ll adjust if needed)
-
-    if (isAI) {
-      resultText.textContent = "❌ This text is likely AI-generated.";
-      resultText.className = "text-red-600 font-semibold";
-    } else {
-      resultText.textContent = "✅ This text is likely human-written.";
-      resultText.className = "text-green-600 font-semibold";
-    }
-
-    confidenceText.textContent = `Confidence Score: ${score}%`;
-  }
-
-  // Dark mode toggle
-  document.getElementById('toggleDark').addEventListener('click', () => {
-    document.documentElement.classList.toggle('dark');
+    // Expose function globally
+    window.analyzeText = analyzeText;
   });
 </script>
