@@ -6,7 +6,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const backendResponse = await fetch('https://text-detector-api.onrender.com/predict', {
+    const backendResponse = await fetch('https://textdetector-backend.onrender.com/predict', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
