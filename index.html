@@ -6,27 +6,28 @@
   <title>TextDetectorAI.online</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gradient-to-br from-purple-700 to-purple-400 min-h-screen flex flex-col justify-center items-center text-white p-4">
+<body class="bg-gradient-to-br from-purple-800 to-purple-500 min-h-screen flex items-center justify-center px-4">
 
-  <h1 class="text-4xl font-bold mb-2">TextDetectorAI.online</h1>
-  <p class="text-lg mb-6">Instantly detect if text is AI-written or human-written</p>
+  <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-2xl w-full text-gray-800">
+    <h1 class="text-3xl font-bold text-purple-700 text-center mb-2">TextDetectorAI.online</h1>
+    <p class="text-center text-gray-600 mb-6">Instantly detect if text is AI-written or human-written</p>
 
-  <div class="w-full max-w-xl">
-    <textarea id="inputText" rows="6" placeholder="Paste your text here..." class="w-full p-4 rounded-lg text-black"></textarea>
-    <button onclick="analyzeText()" class="mt-4 bg-white text-purple-700 font-bold py-2 px-6 rounded-lg hover:bg-purple-200 transition">
+    <textarea id="inputText" rows="6" placeholder="Paste your text here..." class="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400 transition"></textarea>
+
+    <button onclick="analyzeText()" class="w-full mt-4 bg-purple-700 text-white font-semibold py-2 px-6 rounded-lg hover:bg-purple-600 transition">
       Analyze Text
     </button>
 
-    <p class="text-sm mt-2 text-purple-100 italic">Tip: Use at least 50 words for better detection accuracy.</p>
+    <p class="text-xs text-gray-500 text-center mt-2 italic">Tip: Use at least 50 words for better detection accuracy.</p>
 
-    <div id="result" class="mt-6 text-center text-lg"></div>
+    <div id="result" class="mt-6 text-center text-lg font-medium text-gray-700"></div>
+
+    <footer class="mt-10 text-center text-sm text-gray-400">
+      <a href="#" class="hover:text-purple-600">About</a> · 
+      <a href="#" class="hover:text-purple-600">How it Works</a> · 
+      <a href="#" class="hover:text-purple-600">Contact</a>
+    </footer>
   </div>
-
-  <footer class="mt-10 text-sm text-purple-100">
-    <a href="#" class="hover:underline">About</a> | 
-    <a href="#" class="hover:underline">How it Works</a> | 
-    <a href="#" class="hover:underline">Contact</a>
-  </footer>
 
   <script>
     async function analyzeText() {
@@ -54,5 +55,6 @@
       }
     }
   </script>
+
 </body>
 </html>
