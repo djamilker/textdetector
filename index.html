@@ -5,28 +5,37 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>TextDetectorAI.online</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+  </style>
 </head>
-<body class="bg-gradient-to-br from-purple-800 to-purple-500 min-h-screen flex items-center justify-center px-4">
+<body class="bg-gradient-to-br from-indigo-900 via-purple-800 to-fuchsia-700 min-h-screen flex items-center justify-center px-4 py-10">
 
-  <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-2xl w-full text-gray-800">
-    <h1 class="text-3xl font-bold text-purple-700 text-center mb-2">TextDetectorAI.online</h1>
-    <p class="text-center text-gray-600 mb-6">Instantly detect if text is AI-written or human-written</p>
+  <div class="bg-white/10 backdrop-blur-md shadow-xl rounded-3xl p-10 max-w-3xl w-full text-white border border-white/20">
+    <div class="text-center">
+      <h1 class="text-4xl md:text-5xl font-bold mb-2 text-white tracking-tight">TextDetectorAI.online</h1>
+      <p class="text-lg md:text-xl text-purple-200 mb-8">Reveal the truth behind any text — AI or Human?</p>
+    </div>
 
-    <textarea id="inputText" rows="6" placeholder="Paste your text here..." class="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400 transition"></textarea>
+    <div class="space-y-4">
+      <textarea id="inputText" rows="6" placeholder="Paste your text here..." class="w-full p-4 text-gray-800 rounded-xl border border-purple-200 focus:outline-none focus:ring-4 focus:ring-purple-300 transition"></textarea>
+      <button onclick="analyzeText()" class="w-full bg-white text-purple-800 font-bold py-3 px-6 rounded-xl hover:bg-purple-100 active:scale-95 transition-all">
+        🚀 Analyze Text
+      </button>
+      <p class="text-xs text-purple-100 text-center italic">💡 Tip: Accuracy improves with longer text (50+ words).</p>
+    </div>
 
-    <button onclick="analyzeText()" class="w-full mt-4 bg-purple-700 text-white font-semibold py-2 px-6 rounded-lg hover:bg-purple-600 transition">
-      Analyze Text
-    </button>
+    <div id="result" class="mt-6 text-center text-lg font-medium text-white"></div>
 
-    <p class="text-xs text-gray-500 text-center mt-2 italic">Tip: Use at least 50 words for better detection accuracy.</p>
-
-    <div id="result" class="mt-6 text-center text-lg font-medium text-gray-700"></div>
-
-    <footer class="mt-10 text-center text-sm text-gray-400">
-      <a href="#" class="hover:text-purple-600">About</a> · 
-      <a href="#" class="hover:text-purple-600">How it Works</a> · 
-      <a href="#" class="hover:text-purple-600">Contact</a>
-    </footer>
+    <div class="mt-10 border-t border-white/20 pt-6 text-sm text-purple-200 flex flex-wrap justify-center gap-6">
+      <a href="#" class="hover:text-white transition">About</a>
+      <a href="#" class="hover:text-white transition">How it Works</a>
+      <a href="#" class="hover:text-white transition">Contact</a>
+    </div>
   </div>
 
   <script>
@@ -48,10 +57,10 @@
         }
 
         const data = await response.json();
-        resultBox.innerHTML = `✅ <strong>${data.label.replace("_", " ")}</strong><br/>Confidence: ${data.confidence}%`;
+        resultBox.innerHTML = `✅ <strong class='text-green-300'>${data.label.replace("_", " ")}</strong><br/>Confidence: <span class='text-green-200'>${data.confidence}%</span>`;
       } catch (err) {
         console.error(err);
-        resultBox.innerHTML = `❌ ${err.message}`;
+        resultBox.innerHTML = `❌ <span class='text-red-300'>${err.message}</span>`;
       }
     }
   </script>
