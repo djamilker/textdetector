@@ -1,7 +1,11 @@
 export const config = { api: { bodyParser: true } };
 
 export default async function handler(req, res) {
-  if (req.method === 'POST') {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Only POST allowed' });
+  }
+
+  try {
     const backendResponse = await fetch('https://text-detector-api.onrender.com/predict', {
       method: 'POST',
       headers: {
@@ -10,9 +14,17 @@ export default async function handler(req, res) {
       body: JSON.stringify(req.body)
     });
 
-    const data = await backendResponse.json();
-    res.status(backendResponse.status).json(data);
-  } else {
-    res.status(405).json({ error: 'Method not allowed' });
+    const text = await backendResponse.text(); // read response as raw text first
+
+    try {
+      const json = JSON.parse(text); // attempt to parse it
+      res.status(backendResponse.status).json(json);
+    } catch (err) {
+      res.status(backendResponse.status).json({ error: 'Invalid JSON from backend', raw: text });
+    }
+
+  } catch (err) {
+    console.error('Proxy error:', err);
+    res.status(500).json({ error: 'Proxy request failed', details: err.message });
   }
 }
