@@ -1,3 +1,5 @@
+export const config = { api: { bodyParser: true } };
+
 export default async function handler(req, res) {
   if (req.method === 'POST') {
     const backendResponse = await fetch('https://text-detector-api.onrender.com/predict', {
